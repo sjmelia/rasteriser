@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 2.8)
+#set(CMAKE_MODULE_PATH ${CHECK_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules/")
+project(rast)
+#enable_testing()
+add_executable(rast src/main.c)
+TARGET_LINK_LIBRARIES(rast lib/geom)
+add_subdirectory(lib/geom)
