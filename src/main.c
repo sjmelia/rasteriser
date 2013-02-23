@@ -1,6 +1,6 @@
 #include <stdio.h>
 //#include "../lib/geom/src/vector3.h"
-#include "vector3.h"
+#include "vector4.h"
 #include "matrix4.h"
 #include "projection.h" 
 #include <SDL/SDL.h>
@@ -9,27 +9,21 @@
 matrix4* modelMatrix;
 matrix4* perspectiveMatrix;
 
-void init()
+void apply(vector4* point)
 {
-    modelMatrix = matrix4_create();
-    perspectiveMatrix = matrix4_create();
-    perspective(perspectiveMatrix, 45.0, (640 / 480), 0.1, 100);
-}
-
-void apply(vector3* point)
-{
-    vector3* result = vector3_create(0,0,0);
-    matrix4_multiply_v3(result, modelMatrix, point);
+    vector4* result = vector4_create(0,0,0,0);
+    matrix4_multiply_v4(result, modelMatrix, point);
 
     // swap back into point
-    matrix4_multiply_v3(point, perspectiveMatrix, result);
+    matrix4_multiply_v4(point, perspectiveMatrix, result);
     
     // normalises into result 
-    vector3_norm(result, point);
+    vector4_norm(result, point);
     point->x = result->x;
     point->y = result->y;
     point->z = result->z;
-    vector3_free(result);
+    point->w = result->w;
+    vector4_free(result);
 
     // viewport bit (?)
     point->x = (point->x + 1) * (640 / 2);
@@ -39,15 +33,13 @@ void apply(vector3* point)
     //point->y = 480 - point->y;
 }
 
-void render_scene(SDL_Surface* screen)
+void translate(double x, double y, double z, double w)
 {
-    matrix4_identity(modelMatrix);
-    
     // Get a translation matrix
     matrix4* translate = matrix4_create();
-    vector3* translation = vector3_create(-1.5, 0.0, 6.0);
+    vector4* translation = vector4_create(x, y, z, w);
     matrix4_translation(translate, translation);
-    vector3_free(translation);
+    vector4_free(translation);
 
     // Apply the translation
     matrix4* result = matrix4_create();
@@ -56,17 +48,37 @@ void render_scene(SDL_Surface* screen)
     // Free and swap
     matrix4_free(modelMatrix);
     matrix4_free(translate);
-    printf("Resulta: %f", result->a4);
     modelMatrix = result;
-    printf(" model: %f\n", modelMatrix->a4);
+}
+void rotate(double angle, double x, double y, double z, double w)
+{
+    // Get a translation matrix
+    matrix4* translate = matrix4_create();
+    vector4* translation = vector4_create(x, y, z, w);
+    matrix4_rotation(translate, angle, translation);
+    vector4_free(translation);
 
+    // Apply the translation
+    matrix4* result = matrix4_create();
+    matrix4_multiply(result, modelMatrix, translate);
+
+    // Free and swap
+    matrix4_free(modelMatrix);
+    matrix4_free(translate);
+    modelMatrix = result;
+}
+
+
+void render_scene(SDL_Surface* screen)
+{
+    rotate(1.0, 0.0, 1.0, 0.0, 1.0); 
 
     // Triangle
-    vector3* top = vector3_create(0.0, 1.0, 0.0);
-    vector3* fbl = vector3_create(-1.0, -1.0, 1.0);
-    vector3* fbr = vector3_create(1.0, -1.0, 1.0);
-    vector3* bbl = vector3_create(-1.0, -1.0, -1.0);
-    vector3* bbr = vector3_create(1.0, -1.0, -1.0);
+    vector4* top = vector4_create(0.0, 1.0, 0.0, 1.0);
+    vector4* fbl = vector4_create(-1.0, -1.0, 1.0, 1.0);
+    vector4* fbr = vector4_create(1.0, -1.0, 1.0, 1.0);
+    vector4* bbl = vector4_create(-1.0, -1.0, -1.0, 1.0);
+    vector4* bbr = vector4_create(1.0, -1.0, -1.0, 1.0);
 
     apply(top);
     apply(fbl);
@@ -74,29 +86,39 @@ void render_scene(SDL_Surface* screen)
     apply(bbl);
     apply(bbr);
 
-    printf("Top %f:%f Fbl %f:%f Fbr %f:%f\n", top->x, top->y, fbl->x, fbl->y, fbr->x, fbr->y);
+    //printf("Top %f:%f Fbl %f:%f Fbr %f:%f\n", top->x, top->y, fbl->x, fbl->y, fbr->x, fbr->y);
 
     // Draw front triangle
-    lineRGBA(screen, top->x, top->y, fbl->x, fbl->y, 255, 0, 0, 255);
-    lineRGBA(screen, fbl->x, fbl->y, fbr->x, fbr->y, 255, 0, 0, 255);
-    lineRGBA(screen, fbr->x, fbr->y, top->x, top->y, 255, 0, 0, 255);
+    lineRGBA(screen, top->x, top->y, fbl->x, fbl->y, 255, 255, 255, 255);
+    lineRGBA(screen, fbl->x, fbl->y, fbr->x, fbr->y, 255, 255, 255, 255);
+    lineRGBA(screen, fbr->x, fbr->y, top->x, top->y, 255, 255, 255, 255);
     
     // Back
-    lineRGBA(screen, top->x, top->y, bbl->x, bbl->y, 0, 255, 0, 255);
-    lineRGBA(screen, bbl->x, bbl->y, bbr->x, bbr->y, 0, 255, 0, 255);
-    lineRGBA(screen, bbr->x, bbr->y, top->x, top->y, 0, 255, 0, 255);
+    lineRGBA(screen, top->x, top->y, bbl->x, bbl->y, 255, 255, 255, 255);
+    lineRGBA(screen, bbl->x, bbl->y, bbr->x, bbr->y, 255, 255, 255, 255);
+    lineRGBA(screen, bbr->x, bbr->y, top->x, top->y, 255, 255, 255, 255);
 
     // Base
-    lineRGBA(screen, bbl->x, bbl->y, fbl->x, fbl->y, 0, 0, 255, 255);
-    lineRGBA(screen, bbr->x, bbr->y, fbr->x, fbr->y, 0, 0, 255, 255);
+    lineRGBA(screen, bbl->x, bbl->y, fbl->x, fbl->y, 255, 255, 255, 255);
+    lineRGBA(screen, bbr->x, bbr->y, fbr->x, fbr->y, 255, 255, 255, 255);
 
-    vector3_free(top);
-    vector3_free(fbl);
-    vector3_free(fbr);
-    vector3_free(bbl);
-    vector3_free(bbr);
+    vector4_free(top);
+    vector4_free(fbl);
+    vector4_free(fbr);
+    vector4_free(bbl);
+    vector4_free(bbr);
     
 }
+void init()
+{
+    modelMatrix = matrix4_create();
+    perspectiveMatrix = matrix4_create();
+    perspective(perspectiveMatrix, 45.0, (640 / 480), 0.1, 100);
+    matrix4_identity(modelMatrix);
+    translate(0.0, 0.0, 3.0, 1.0);    
+    
+}
+
 
 void render(SDL_Surface* screen)
 {
@@ -139,16 +161,16 @@ int main()
         render(screen);
     }
 
-    vector3 v1;
-    vector3 v2;
+    vector4 v1;
+    vector4 v2;
     v1.x = 2;
     v2.x = 2;
     v1.y = 2;
     v2.y = 2;
     v1.z = 2;
     v2.z = 2;
-    vector3 result;
-    vector3_sum(&result, &v1, &v2);
+    vector4 result;
+    vector4_sum(&result, &v1, &v2);
     printf("Hello World! %f\n",result.x);
     SDL_FreeSurface(screen);
 }
