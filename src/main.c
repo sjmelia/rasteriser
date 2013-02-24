@@ -1,39 +1,18 @@
+#include <SDL/SDL.h>
+#include <SDL/SDL_gfxPrimitives.h>
 #include <stdio.h>
-//#include "../lib/geom/src/vector3.h"
 #include "vector4.h"
 #include "matrix4.h"
 #include "projection.h" 
-#include <SDL/SDL.h>
-#include <SDL/SDL_gfxPrimitives.h>
 #include "triangle.h"
 #include "rasteriser.h"
 
 triangle* front;
+triangle* back;
+triangle* bota;
+triangle* botb;
+
 rasteriser* rast;
-
-/*void apply(vector4* point)
-{
-    //vector4* result = vector4_create(0,0,0,0);
-    matrix4_multiply_v4(apply_result, modelMatrix, point);
-
-    // swap back into point
-    matrix4_multiply_v4(point, perspectiveMatrix, apply_result);
-    
-    // normalises into result 
-    vector4_norm(apply_result, point);
-    point->x = apply_result->x;
-    point->y = apply_result->y;
-    point->z = apply_result->z;
-    point->w = apply_result->w;
-    //vector4_free(result);
-
-    // viewport bit (?)
-    point->x = (point->x + 1) * (640 / 2);
-    point->y = (point->y + 1) * (480 / 2);
-
-    // invert y (?)
-    //point->y = 480 - point->y;
-}*/
 
 void render_triangle(SDL_Surface* screen, triangle* tri)
 {
@@ -60,43 +39,11 @@ void render_scene(SDL_Surface* screen)
     rasteriser_rotate(rast, 1.0, 0.0, 1.0, 0.0, 1.0); 
 
     render_triangle(screen, front);
-
-    // Triangle
-/*    vector4* top = vector4_create(0.0, 1.0, 0.0, 1.0);
-    vector4* fbl = vector4_create(-1.0, -1.0, 1.0, 1.0);
-    vector4* fbr = vector4_create(1.0, -1.0, 1.0, 1.0);
-    vector4* bbl = vector4_create(-1.0, -1.0, -1.0, 1.0);
-    vector4* bbr = vector4_create(1.0, -1.0, -1.0, 1.0);
-
-    apply(top);
-    apply(fbl);
-    apply(fbr);
-    apply(bbl);
-    apply(bbr);
-
-    //printf("Top %f:%f Fbl %f:%f Fbr %f:%f\n", top->x, top->y, fbl->x, fbl->y, fbr->x, fbr->y);
-
-    // Draw front triangle
-    lineRGBA(screen, top->x, top->y, fbl->x, fbl->y, 255, 255, 255, 255);
-    lineRGBA(screen, fbl->x, fbl->y, fbr->x, fbr->y, 255, 255, 255, 255);
-    lineRGBA(screen, fbr->x, fbr->y, top->x, top->y, 255, 255, 255, 255);
-    
-    // Back
-    lineRGBA(screen, top->x, top->y, bbl->x, bbl->y, 255, 255, 255, 255);
-    lineRGBA(screen, bbl->x, bbl->y, bbr->x, bbr->y, 255, 255, 255, 255);
-    lineRGBA(screen, bbr->x, bbr->y, top->x, top->y, 255, 255, 255, 255);
-
-    // Base
-    lineRGBA(screen, bbl->x, bbl->y, fbl->x, fbl->y, 255, 255, 255, 255);
-    lineRGBA(screen, bbr->x, bbr->y, fbr->x, fbr->y, 255, 255, 255, 255);
-
-    vector4_free(top);
-    vector4_free(fbl);
-    vector4_free(fbr);
-    vector4_free(bbl);
-    vector4_free(bbr);
-  */  
+    render_triangle(screen, back);
+    render_triangle(screen, bota);
+    render_triangle(screen, botb);
 }
+
 void init()
 {
     rast = rasteriser_create();
@@ -104,10 +51,21 @@ void init()
     matrix4_identity(rast->modelMatrix);
     rasteriser_translate(rast, 0.0, 0.0, 3.0, 1.0);    
     
-//    apply_result = vector4_create(0,0,0,0);
     front = triangle_create(
             0.0, 1.0, 0.0,
             -1.0, -1.0, 1.0,
+            1.0, -1.0, 1.0);
+    back = triangle_create(
+            0.0, 1.0, 0.0,
+            -1.0, -1.0, -1.0,
+            1.0, -1.0, -1.0);
+    bota = triangle_create(
+            -1.0, -1.0, 1.0,
+            1.0, -1.0, 1.0,
+            -1.0, -1.0, -1.0);
+    botb = triangle_create(
+            -1.0, -1.0, -1.0,
+            1.0, -1.0, -1.0,
             1.0, -1.0, 1.0);
 }
 
@@ -159,16 +117,5 @@ int main()
         printf("FPS: %f\n",fps);
     }
 
-    vector4 v1;
-    vector4 v2;
-    v1.x = 2;
-    v2.x = 2;
-    v1.y = 2;
-    v2.y = 2;
-    v1.z = 2;
-    v2.z = 2;
-    vector4 result;
-    vector4_sum(&result, &v1, &v2);
-    printf("Hello World! %f\n",result.x);
-    SDL_FreeSurface(screen);
+   SDL_FreeSurface(screen);
 }
