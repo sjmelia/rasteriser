@@ -5,25 +5,27 @@
 #include "projection.h" 
 #include <SDL/SDL.h>
 #include <SDL/SDL_gfxPrimitives.h>
+#include "triangle.h"
+#include "rasteriser.h"
 
-matrix4* modelMatrix;
-matrix4* perspectiveMatrix;
+triangle* front;
+rasteriser* rast;
 
-void apply(vector4* point)
+/*void apply(vector4* point)
 {
-    vector4* result = vector4_create(0,0,0,0);
-    matrix4_multiply_v4(result, modelMatrix, point);
+    //vector4* result = vector4_create(0,0,0,0);
+    matrix4_multiply_v4(apply_result, modelMatrix, point);
 
     // swap back into point
-    matrix4_multiply_v4(point, perspectiveMatrix, result);
+    matrix4_multiply_v4(point, perspectiveMatrix, apply_result);
     
     // normalises into result 
-    vector4_norm(result, point);
-    point->x = result->x;
-    point->y = result->y;
-    point->z = result->z;
-    point->w = result->w;
-    vector4_free(result);
+    vector4_norm(apply_result, point);
+    point->x = apply_result->x;
+    point->y = apply_result->y;
+    point->z = apply_result->z;
+    point->w = apply_result->w;
+    //vector4_free(result);
 
     // viewport bit (?)
     point->x = (point->x + 1) * (640 / 2);
@@ -31,50 +33,36 @@ void apply(vector4* point)
 
     // invert y (?)
     //point->y = 480 - point->y;
-}
+}*/
 
-void translate(double x, double y, double z, double w)
+void render_triangle(SDL_Surface* screen, triangle* tri)
 {
-    // Get a translation matrix
-    matrix4* translate = matrix4_create();
-    vector4* translation = vector4_create(x, y, z, w);
-    matrix4_translation(translate, translation);
-    vector4_free(translation);
+    vector4* transformeda = vector4_create(1,1,1,1);
+    vector4* transformedb = vector4_create(1,1,1,1);
+    vector4* transformedc = vector4_create(1,1,1,1);
 
-    // Apply the translation
-    matrix4* result = matrix4_create();
-    matrix4_multiply(result, modelMatrix, translate);
+    rasteriser_transform(rast, transformeda, tri->a);
+    rasteriser_transform(rast, transformedb, tri->b);
+    rasteriser_transform(rast, transformedc, tri->c);
 
-    // Free and swap
-    matrix4_free(modelMatrix);
-    matrix4_free(translate);
-    modelMatrix = result;
-}
-void rotate(double angle, double x, double y, double z, double w)
-{
-    // Get a translation matrix
-    matrix4* translate = matrix4_create();
-    vector4* translation = vector4_create(x, y, z, w);
-    matrix4_rotation(translate, angle, translation);
-    vector4_free(translation);
+    lineRGBA(screen, transformeda->x, transformeda->y, transformedb->x, transformedb->y, 255, 255, 255, 255);
+    lineRGBA(screen, transformedb->x, transformedb->y, transformedc->x, transformedc->y, 255, 255, 255, 255);
+    lineRGBA(screen, transformedc->x, transformedc->y, transformeda->x, transformeda->y, 255, 255, 255, 255);
 
-    // Apply the translation
-    matrix4* result = matrix4_create();
-    matrix4_multiply(result, modelMatrix, translate);
-
-    // Free and swap
-    matrix4_free(modelMatrix);
-    matrix4_free(translate);
-    modelMatrix = result;
+    vector4_free(transformeda);
+    vector4_free(transformedb);
+    vector4_free(transformedc);
 }
 
 
 void render_scene(SDL_Surface* screen)
 {
-    rotate(1.0, 0.0, 1.0, 0.0, 1.0); 
+    rasteriser_rotate(rast, 1.0, 0.0, 1.0, 0.0, 1.0); 
+
+    render_triangle(screen, front);
 
     // Triangle
-    vector4* top = vector4_create(0.0, 1.0, 0.0, 1.0);
+/*    vector4* top = vector4_create(0.0, 1.0, 0.0, 1.0);
     vector4* fbl = vector4_create(-1.0, -1.0, 1.0, 1.0);
     vector4* fbr = vector4_create(1.0, -1.0, 1.0, 1.0);
     vector4* bbl = vector4_create(-1.0, -1.0, -1.0, 1.0);
@@ -107,16 +95,20 @@ void render_scene(SDL_Surface* screen)
     vector4_free(fbr);
     vector4_free(bbl);
     vector4_free(bbr);
-    
+  */  
 }
 void init()
 {
-    modelMatrix = matrix4_create();
-    perspectiveMatrix = matrix4_create();
-    perspective(perspectiveMatrix, 45.0, (640 / 480), 0.1, 100);
-    matrix4_identity(modelMatrix);
-    translate(0.0, 0.0, 3.0, 1.0);    
+    rast = rasteriser_create();
+    perspective(rast->projectionMatrix, 45.0, (640 / 480), 0.1, 100);
+    matrix4_identity(rast->modelMatrix);
+    rasteriser_translate(rast, 0.0, 0.0, 3.0, 1.0);    
     
+//    apply_result = vector4_create(0,0,0,0);
+    front = triangle_create(
+            0.0, 1.0, 0.0,
+            -1.0, -1.0, 1.0,
+            1.0, -1.0, 1.0);
 }
 
 
@@ -147,6 +139,8 @@ int main()
     SDL_Surface* screen = SDL_SetVideoMode(640, 480, 32, SDL_SWSURFACE);
     init();
     SDL_Event event;
+    int numFrames = 0;
+    int startTime = SDL_GetTicks();
     while(true)
     {
         if (SDL_PollEvent(&event))
@@ -159,6 +153,10 @@ int main()
         }
         //printf("EVENT\n");
         render(screen);
+        ++numFrames;
+
+        float fps = (numFrames/(float)(SDL_GetTicks() - startTime))*1000;
+        printf("FPS: %f\n",fps);
     }
 
     vector4 v1;
