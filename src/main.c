@@ -99,7 +99,7 @@ int main()
     SDL_Event event;
     int numFrames = 0;
     int startTime = SDL_GetTicks();
-    while(true)
+    while(1)
     {
         if (SDL_PollEvent(&event))
         {
