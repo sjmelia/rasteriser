@@ -21,9 +21,7 @@ void rasteriser_translate(rasteriser* rast, double x, double y, double z, double
 {
     // Get a translation matrix
     matrix4* translate = matrix4_create();
-    vector4* translation = vector4_create(x, y, z, w);
-    matrix4_translation(translate, translation);
-    vector4_free(translation);
+    matrix4_translate(translate, x, y, z);
 
     // Apply the translation
     matrix4* result = matrix4_create();
@@ -39,9 +37,8 @@ void rasteriser_rotate(rasteriser* rast, double angle, double x, double y, doubl
 {
     // Get a translation matrix
     matrix4* translate = matrix4_create();
-    vector4* translation = vector4_create(x, y, z, w);
-    matrix4_rotation(translate, angle, translation);
-    vector4_free(translation);
+    // what about w?
+    matrix4_rotation(translate, angle, x, y, z);
 
     // Apply the translation
     matrix4* result = matrix4_create();

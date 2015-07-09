@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 #set(CMAKE_MODULE_PATH ${CHECK_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules/")
 project(rast)
+
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wno-long-long -pedantic")
+add_definitions ("-Wall")
 #enable_testing()
 #include_directories(lib/geom/src)
 add_executable(rast src/main.c src/triangle.c src/rasteriser.c src/vector4.c src/matrix4.c src/projection.c)

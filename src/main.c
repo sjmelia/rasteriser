@@ -9,12 +9,14 @@
 
 triangle* front;
 triangle* back;
+triangle* left;
+triangle* right;
 triangle* bota;
 triangle* botb;
 
 rasteriser* rast;
 
-void render_triangle(SDL_Surface* screen, triangle* tri)
+void render_triangle(SDL_Surface* screen, triangle* tri, int r, int g, int b)
 {
     vector4* transformeda = vector4_create(1,1,1,1);
     vector4* transformedb = vector4_create(1,1,1,1);
@@ -24,9 +26,9 @@ void render_triangle(SDL_Surface* screen, triangle* tri)
     rasteriser_transform(rast, transformedb, tri->b);
     rasteriser_transform(rast, transformedc, tri->c);
 
-    lineRGBA(screen, transformeda->x, transformeda->y, transformedb->x, transformedb->y, 255, 255, 255, 255);
-    lineRGBA(screen, transformedb->x, transformedb->y, transformedc->x, transformedc->y, 255, 255, 255, 255);
-    lineRGBA(screen, transformedc->x, transformedc->y, transformeda->x, transformeda->y, 255, 255, 255, 255);
+    lineRGBA(screen, transformeda->x, transformeda->y, transformedb->x, transformedb->y, r, g, b, 255);
+    lineRGBA(screen, transformedb->x, transformedb->y, transformedc->x, transformedc->y, r, g, b, 255);
+    lineRGBA(screen, transformedc->x, transformedc->y, transformeda->x, transformeda->y, r, g, b, 255);
 
     vector4_free(transformeda);
     vector4_free(transformedb);
@@ -36,12 +38,14 @@ void render_triangle(SDL_Surface* screen, triangle* tri)
 
 void render_scene(SDL_Surface* screen)
 {
-    rasteriser_rotate(rast, 1.0, 0.0, 1.0, 0.0, 1.0); 
+    rasteriser_rotate(rast, 0.5, 0.0, 1.0, 0.0, 1.0); 
 
-    render_triangle(screen, front);
-    render_triangle(screen, back);
-    render_triangle(screen, bota);
-    render_triangle(screen, botb);
+    render_triangle(screen, front, 255, 0, 0);
+    render_triangle(screen, back, 0, 255, 0);
+    render_triangle(screen, left, 0, 0, 255);
+    render_triangle(screen, right, 255, 255, 0);
+    //render_triangle(screen, bota, 255, 0, 255);
+    //render_triangle(screen, botb, 0, 255, 255);
 }
 
 void init()
@@ -51,22 +55,31 @@ void init()
     matrix4_identity(rast->modelMatrix);
     rasteriser_translate(rast, 0.0, 0.0, 3.0, 1.0);    
     
-    front = triangle_create(
-            0.0, 1.0, 0.0,
-            -1.0, -1.0, 1.0,
-            1.0, -1.0, 1.0);
     back = triangle_create(
-            0.0, 1.0, 0.0,
-            -1.0, -1.0, -1.0,
-            1.0, -1.0, -1.0);
+            0.0, -1.0, 0.0,
+            -1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0);
+    front = triangle_create(
+            0.0, -1.0, 0.0,
+            -1.0, 1.0, -1.0,
+            1.0, 1.0, -1.0);
+    left = triangle_create(
+            0.0, -1.0, 0.0,
+            -1.0, 1.0, -1.0,
+            -1.0, 1.0, 1.0);
+    right = triangle_create(
+            0.0, -1.0, 0.0,
+            1.0, 1.0, -1.0,
+            1.0, 1.0, 1.0);
+
     bota = triangle_create(
-            -1.0, -1.0, 1.0,
-            1.0, -1.0, 1.0,
-            -1.0, -1.0, -1.0);
+            -1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0,
+            -1.0, 1.0, -1.0);
     botb = triangle_create(
-            -1.0, -1.0, -1.0,
-            1.0, -1.0, -1.0,
-            1.0, -1.0, 1.0);
+            -1.0, 1.0, -1.0,
+            1.0, 1.0, -1.0,
+            1.0, 1.0, 1.0);
 }
 
 
@@ -118,4 +131,5 @@ int main()
     }
 
    SDL_FreeSurface(screen);
+   return 0;
 }
