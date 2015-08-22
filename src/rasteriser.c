@@ -24,13 +24,10 @@ void rasteriser_translate(rasteriser* rast, double x, double y, double z, double
     matrix4_translate(translate, x, y, z);
 
     // Apply the translation
-    matrix4* result = matrix4_create();
-    matrix4_multiply(result, rast->modelMatrix, translate);
+    matrix4_multiply(rast->modelMatrix, rast->modelMatrix, translate);
 
     // Free and swap
-    matrix4_free(rast->modelMatrix);
     matrix4_free(translate);
-    rast->modelMatrix = result;
 }
 
 void rasteriser_rotate(rasteriser* rast, double angle, double x, double y, double z, double w)
@@ -41,24 +38,19 @@ void rasteriser_rotate(rasteriser* rast, double angle, double x, double y, doubl
     matrix4_rotation(translate, angle, x, y, z);
 
     // Apply the translation
-    matrix4* result = matrix4_create();
-    matrix4_multiply(result, rast->modelMatrix, translate);
+    matrix4_multiply(rast->modelMatrix, rast->modelMatrix, translate);
 
     // Free and swap
-    matrix4_free(rast->modelMatrix);
     matrix4_free(translate);
-    rast->modelMatrix = result;
 }
 
 void rasteriser_transform(rasteriser* rast, vector4* result, vector4* point)
 {
-    vector4* spare = vector4_create(1,1,1,1);
     matrix4_multiply_v4(result, rast->modelMatrix, point);
-    matrix4_multiply_v4(spare, rast->projectionMatrix, result);
-    vector4_norm(result, spare);
+    matrix4_multiply_v4(result, rast->projectionMatrix, result);
+    vector4_norm(result, result);
     result->x = (result->x + 1) * (640 / 2);
     result->y = (result->y + 1) * (480 / 2);
-    vector4_free(spare);
 }
 
 

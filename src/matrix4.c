@@ -5,11 +5,6 @@
 matrix4* matrix4_create()
 {
     matrix4* matrix = (matrix4*)malloc(sizeof(matrix4));
-    // should memset
-    matrix->a1 = 0; matrix->a2 = 0; matrix->a3 = 0; matrix->a4 = 0;
-    matrix->b1 = 0; matrix->b2 = 0; matrix->b3 = 0; matrix->b4 = 0;
-    matrix->c1 = 0; matrix->c2 = 0; matrix->c3 = 0; matrix->c4 = 0;
-    matrix->d1 = 0; matrix->d2 = 0; matrix->d3 = 0; matrix->d4 = 0;
     matrix4_identity(matrix);
     return matrix;
 }
@@ -29,33 +24,39 @@ void matrix4_free(matrix4* matrix)
 
 void matrix4_multiply(matrix4* c, matrix4* a, matrix4* b)
 {
-    c->a1 = a->a1 * b->a1 + a->a2 * b->b1 + a->a3 * b->c1 + a->a4 * b->d1;
-    c->a2 = a->a1 * b->a2 + a->a2 * b->b2 + a->a3 * b->c2 + a->a4 * b->d2;
-    c->a3 = a->a1 * b->a3 + a->a2 * b->b3 + a->a3 * b->c3 + a->a4 * b->d3;
-    c->a4 = a->a1 * b->a4 + a->a2 * b->b4 + a->a3 * b->c4 + a->a4 * b->d4;
+    double a1 = a->a1 * b->a1 + a->a2 * b->b1 + a->a3 * b->c1 + a->a4 * b->d1;
+    double a2 = a->a1 * b->a2 + a->a2 * b->b2 + a->a3 * b->c2 + a->a4 * b->d2;
+    double a3 = a->a1 * b->a3 + a->a2 * b->b3 + a->a3 * b->c3 + a->a4 * b->d3;
+    double a4 = a->a1 * b->a4 + a->a2 * b->b4 + a->a3 * b->c4 + a->a4 * b->d4;
 
-    c->b1 = a->b1 * b->a1 + a->b2 * b->b1 + a->b3 * b->c1 + a->b4 * b->d1;
-    c->b2 = a->b1 * b->a2 + a->b2 * b->b2 + a->b3 * b->c2 + a->b4 * b->d2;
-    c->b3 = a->b1 * b->a3 + a->b2 * b->b3 + a->b3 * b->c3 + a->b4 * b->d3;
-    c->b4 = a->b1 * b->a4 + a->b2 * b->b4 + a->b3 * b->c4 + a->b4 * b->d4;
+    double b1 = a->b1 * b->a1 + a->b2 * b->b1 + a->b3 * b->c1 + a->b4 * b->d1;
+    double b2 = a->b1 * b->a2 + a->b2 * b->b2 + a->b3 * b->c2 + a->b4 * b->d2;
+    double b3 = a->b1 * b->a3 + a->b2 * b->b3 + a->b3 * b->c3 + a->b4 * b->d3;
+    double b4 = a->b1 * b->a4 + a->b2 * b->b4 + a->b3 * b->c4 + a->b4 * b->d4;
 
-    c->c1 = a->c1 * b->a1 + a->c2 * b->b1 + a->c3 * b->c1 + a->c4 * b->d1;
-    c->c2 = a->c1 * b->a2 + a->c2 * b->b2 + a->c3 * b->c2 + a->c4 * b->d2;
-    c->c3 = a->c1 * b->a3 + a->c2 * b->b3 + a->c3 * b->c3 + a->c4 * b->d3;
-    c->c4 = a->c1 * b->a4 + a->c2 * b->b4 + a->c3 * b->c4 + a->c4 * b->d4;
+    double c1 = a->c1 * b->a1 + a->c2 * b->b1 + a->c3 * b->c1 + a->c4 * b->d1;
+    double c2 = a->c1 * b->a2 + a->c2 * b->b2 + a->c3 * b->c2 + a->c4 * b->d2;
+    double c3 = a->c1 * b->a3 + a->c2 * b->b3 + a->c3 * b->c3 + a->c4 * b->d3;
+    double c4 = a->c1 * b->a4 + a->c2 * b->b4 + a->c3 * b->c4 + a->c4 * b->d4;
     
-    c->d1 = a->d1 * b->a1 + a->d2 * b->b1 + a->d3 * b->c1 + a->d4 * b->d1;
-    c->d2 = a->d1 * b->a2 + a->d2 * b->b2 + a->d3 * b->c2 + a->d4 * b->d2;
-    c->d3 = a->d1 * b->a3 + a->d2 * b->b3 + a->d3 * b->c3 + a->d4 * b->d3;
-    c->d4 = a->d1 * b->a4 + a->d2 * b->b4 + a->d3 * b->c4 + a->d4 * b->d4;
+    double d1 = a->d1 * b->a1 + a->d2 * b->b1 + a->d3 * b->c1 + a->d4 * b->d1;
+    double d2 = a->d1 * b->a2 + a->d2 * b->b2 + a->d3 * b->c2 + a->d4 * b->d2;
+    double d3 = a->d1 * b->a3 + a->d2 * b->b3 + a->d3 * b->c3 + a->d4 * b->d3;
+    double d4 = a->d1 * b->a4 + a->d2 * b->b4 + a->d3 * b->c4 + a->d4 * b->d4;
+
+    c->a1 = a1; c->a2 = a2; c->a3 = a3; c->a4 = a4;
+    c->b1 = b1; c->b2 = b2; c->b3 = b3; c->b4 = b4;
+    c->c1 = c1; c->c2 = c2; c->c3 = c3; c->c4 = c4;
+    c->d1 = d1; c->d2 = d2; c->d3 = d3; c->d4 = d4;
 }
 
 void matrix4_multiply_v4(vector4* c, matrix4* a, vector4* b)
 {
-    c->x = (a->a1 * b->x) + (a->a2 * b->y) + (a->a3 * b->z) + (a->a4 * b->w);
-    c->y = a->b1 * b->x + a->b2 * b->y + a->b3 * b->z + a->b4 * b->w;
-    c->z = a->c1 * b->x + a->c2 * b->y + a->c3 * b->z + a->c4 * b->w;
-    c->w = a->d1 * b->x + a->d2 * b->y + a->d3 * b->z + a->d4 * b->w;
+    double x = (a->a1 * b->x) + (a->a2 * b->y) + (a->a3 * b->z) + (a->a4 * b->w);
+    double y = a->b1 * b->x + a->b2 * b->y + a->b3 * b->z + a->b4 * b->w;
+    double z = a->c1 * b->x + a->c2 * b->y + a->c3 * b->z + a->c4 * b->w;
+    double w = a->d1 * b->x + a->d2 * b->y + a->d3 * b->z + a->d4 * b->w;
+    c->x = x; c->y = y; c->z = z; c->w = w;
 }
 
 void matrix4_rotation(matrix4* matrix, double angle, double x, double y, double z)
@@ -106,10 +107,7 @@ void matrix4_translate(matrix4* matrix, double x, double y, double z)
     m->b4 = y;
     m->c4 = z;
     //m->d4 = w; ?
-    matrix4* result = matrix4_create();
-    matrix4_multiply(result, matrix, m);
-    matrix4_clone(matrix, result);
-    matrix4_free(result);
+    matrix4_multiply(matrix, matrix, m);
     matrix4_free(m);
 }
 

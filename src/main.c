@@ -88,13 +88,11 @@ void render(SDL_Surface* screen)
     SDL_LockSurface(screen);
     unsigned int* pixels = (unsigned int*)screen->pixels;
     int x,y;
-    unsigned int color = SDL_MapRGB(screen->format, 0,0,0); //255, 150, 255);
-   // printf("Rendering %d:%d %d\n",screen->w, screen->h, sizeof(unsigned int));
+    unsigned int color = SDL_MapRGB(screen->format, 0,0,0);
     for (y = 0; y < screen->h; y++)
     {
         for (x = 0; x < screen->w; x++)
         {
-            //printf("printing %d:%d\n", x, y);
             pixels[(y * screen->w) + x] = color;
         }
     }
@@ -118,16 +116,15 @@ int main()
         {
             if (event.type == SDL_QUIT)
             {
-                printf("GOT QUIT\n");
+                printf("Got Quit\n");
                 break;
             }
         }
-        //printf("EVENT\n");
         render(screen);
         ++numFrames;
 
         float fps = (numFrames/(float)(SDL_GetTicks() - startTime))*1000;
-        printf("FPS: %f\n",fps);
+        //printf("FPS: %f\n",fps);
     }
 
    SDL_FreeSurface(screen);
