@@ -1,7 +1,10 @@
+A Simple Rasteriser
+===================
 
-This project left in a broken state with half the files missing!
+Just projects a triangle, that's all!
 
-who knows what happened!
+Building on Debian
+------------------
 
 apt-get install libsdl1.2-dev
 apt-get install libsdl-gfx1.2-dev
