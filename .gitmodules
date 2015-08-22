@@ -1,3 +1,0 @@
-[submodule "lib/geom"]
-	path = lib/geom
-	url = git@sponge:~/games/geom.git
