@@ -29,6 +29,38 @@ void vector4_norm(vector4* result, vector4* target)
     result->z = target->z / length;
 }
 
+void vector4_cross(vector4* result, vector4* left, vector4* right)
+{
+}
+
+double vector4_dot(vector4* left, vector4* right)
+{
+}
+
+void vector4_multiply(vector4* result, vector4* left, double right)
+{
+    result->x = left->x * right;
+    result->y = left->y * right;
+    result->z = left->z * right;
+    result->w = left->w * right;
+}
+
+void vector4_plus(vector4* result, vector4* left, vector4* right)
+{
+    result->x = left->x + right->x;
+    result->y = left->y + right->y;
+    result->z = left->z + right->z;
+    result->w = left->w + right->w;
+}
+
+void vector4_minus(vector4* result, vector4* left, vector4* right)
+{
+    result->x = left->x - right->x;
+    result->y = left->y - right->y;
+    result->z = left->z - right->z;
+    result->w = left->w - right->w;
+}
+
 void vector4_free(vector4* vect)
 {
     free(vect);
