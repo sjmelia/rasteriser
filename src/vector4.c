@@ -31,10 +31,16 @@ void vector4_norm(vector4* result, vector4* target)
 
 void vector4_cross(vector4* result, vector4* left, vector4* right)
 {
+    // http://mathinsight.org/cross_product_examples
+    result->x = ((left->y * right->z) - (left->z * right->y));
+    result->y = ((left->x * right->x) - (left->z * right->x));
+    result->z = ((left->x * right->y) - (left->y * right->x));
+    result->w = 0;
 }
 
 double vector4_dot(vector4* left, vector4* right)
 {
+    return (left->x * right->x) + (left->y * right->y) + (left->z * right->z) + (left->w * right->w); 
 }
 
 void vector4_multiply(vector4* result, vector4* left, double right)
