@@ -7,7 +7,7 @@ add_definitions ("-Wall")
 enable_testing()
 #include_directories(lib/geom/src)
 
-add_library(geom src/triangle.c src/vector4.c src/matrix4.c)
+add_library(geom src/triangle.c src/vector4.c src/matrix4.c src/ray.c)
 add_executable(rast src/main.c src/rasteriser.c src/projection.c)
 TARGET_LINK_LIBRARIES(geom m)
 TARGET_LINK_LIBRARIES(rast geom)

@@ -6,6 +6,7 @@
 #include "projection.h" 
 #include "triangle.h"
 #include "rasteriser.h"
+#include "ray.h"
 
 triangle* front;
 triangle* back;
@@ -14,14 +15,8 @@ triangle* right;
 triangle* bota;
 triangle* botb;
 
-typedef struct raytracer
-{
-    vector4* camera;
-    double focal_length;
-} raytracer;
-
 rasteriser* rast;
-raytracer* ray;
+ray* r;
 
 void render_triangle(SDL_Surface* screen, triangle* tri, int r, int g, int b)
 {
@@ -42,7 +37,6 @@ void render_triangle(SDL_Surface* screen, triangle* tri, int r, int g, int b)
     vector4_free(transformedc);
 }
 
-
 void render_scene(SDL_Surface* screen)
 {
     //rasteriser_rotate(rast, 0.5, 0.0, 1.0, 0.0, 1.0); 
@@ -55,44 +49,7 @@ void render_scene(SDL_Surface* screen)
     //render_triangle(screen, botb, 0, 255, 255);
 }
 
-#define EPSILON 0.000001
-vector4* e1;
-vector4* e2;
-vector4* p;
-vector4* q;
-vector4* t;
- 
-int ray_intersects_tri(vector4* origin, vector4* direction, triangle* tri)
-{
-    //return 1;
-    double det, inv_det, u, v;
-    double t2;
-
-    vector4_minus(e1, tri->b, tri->a);
-    vector4_minus(e2, tri->c, tri->a);
-
-    vector4_cross(p, direction, e2);
-    det = vector4_dot(e1, p);
-    if (det > -EPSILON && det < EPSILON) return 0;
-    inv_det = 1.0f / det;
-    vector4_minus(t, origin, tri->a);
-    u = vector4_dot(t, p) * inv_det;
-    if (u < 0.0f || u > 1.0f) return 0;
-    vector4_cross(q, t, e1);
-    v = vector4_dot(direction, q) * inv_det;
-    if (v < 0.0f || u + v > 1.0f) return 0;
-    t2 = vector4_dot(e2, q) * inv_det;
-
-    if (t2 > EPSILON)
-    {
-        // *out = t2;
-        return 1;
-    }
-
-    return 0;
-}
-
-void raytrace_scene(raytracer* raytracer, SDL_Surface* screen)
+void raytrace_scene(SDL_Surface* screen)
 {
     // surface is already locked
     unsigned int* pixels = (unsigned int*)screen->pixels;
@@ -100,7 +57,6 @@ void raytrace_scene(raytracer* raytracer, SDL_Surface* screen)
     // for each pixel, project a line from the camera
     // to the defined plane
     int x,y;
-    vector4* direction = vector4_create(0, 0, 0, 0);
     vector4* pixelv = vector4_create(0, 0, 0, 0);
     for (y = 0; y < screen->h; y++)
     {
@@ -111,26 +67,26 @@ void raytrace_scene(raytracer* raytracer, SDL_Surface* screen)
             // get the direction vector for this line
             pixelv->x = x-320;
             pixelv->x *= 0.005;
-            vector4_minus(direction, pixelv, raytracer->camera); //, pixelv);
+            vector4_minus(r->direction, pixelv, r->origin); //, pixelv);
 
             if (x == 320 && y == 240)
             {
                 printf("Fired a ray from <%f, %f, %f, %f> to <%f, %f, %f, %f> in direction <%f, %f, %f, %f>\n",
-                        raytracer->camera->x,
-                        raytracer->camera->y,
-                        raytracer->camera->z,
-                        raytracer->camera->w,
+                        r->origin->x,
+                        r->origin->y,
+                        r->origin->z,
+                        r->origin->w,
                         pixelv->x,
                         pixelv->y,
                         pixelv->z,
                         pixelv->w,
-                        direction->x,
-                        direction->y,
-                        direction->z,
-                        direction->w);
+                        r->direction->x,
+                        r->direction->y,
+                        r->direction->z,
+                        r->direction->w);
             }
             
-            if (ray_intersects_tri(raytracer->camera, direction, front))
+            if (ray_intersects_tri(r, front))
             {
                 pixels[(y * screen->w) + x] = color;
             }
@@ -138,20 +94,15 @@ void raytrace_scene(raytracer* raytracer, SDL_Surface* screen)
     }
 
     vector4_free(pixelv);
-    vector4_free(direction);
 }
 
 void init()
 {
-    e1 = vector4_create(0, 0, 0, 0);
-    e2 = vector4_create(0, 0, 0, 0);
-    p = vector4_create(0, 0, 0, 0);
-    q = vector4_create(0, 0, 0, 0);
-    t = vector4_create(0, 0, 0, 0);
- 
-    ray = (raytracer*)malloc(sizeof(raytracer));
-    ray->camera = vector4_create(0, 0, -2, 0);
-    ray->focal_length = 1;
+    r = ray_create(0, 0, 0, 0, 0, 0, 0, 0);
+    r->origin->x = 0;
+    r->origin->y = 0;
+    r->origin->z = -2;
+    r->origin->w = 0;
 
     rast = rasteriser_create();
     // camera is between 1.45 and 3 from the object?
@@ -200,7 +151,7 @@ void render(SDL_Surface* screen)
             pixels[(y * screen->w) + x] = color;
         }
     }
-    raytrace_scene(ray, screen);
+    raytrace_scene(screen);
     render_scene(screen);
     SDL_UnlockSurface(screen);
     SDL_UpdateRect(screen, 0, 0, screen->w, screen->h);
