@@ -58,15 +58,22 @@ void raytrace_scene(SDL_Surface* screen)
     // to the defined plane
     int x,y;
     vector4* pixelv = vector4_create(0, 0, 0, 0);
-    for (y = 0; y < screen->h; y++)
+    double fovx = 45.0;
+    double fovy = (480.0/640.0) * fovx;
+    for (y = 0.0; y < screen->h; y++)
     {
-        pixelv->y = y-240;
-        pixelv->y *= 0.005;
-        for (x = 0; x < screen->w; x++)
+        
+        //pixelv->y = y-240;
+        //pixelv->y *= 0.005;
+        double dy = y;
+        pixelv->y = (((2.0 * dy) - 480.0) / 480.0) * tan(fovy);
+        for (x = 0.0; x < screen->w; x++)
         {
             // get the direction vector for this line
-            pixelv->x = x-320;
-            pixelv->x *= 0.005;
+            //pixelv->x = x-320;
+            //pixelv->x *= 0.005;
+            double dx = x;
+            pixelv->x = (((2.0 * dx) - 640.0) / 640.0) * tan(fovx);
             vector4_minus(r->direction, pixelv, r->origin); //, pixelv);
 
             if (x == 320 && y == 240)
@@ -101,7 +108,7 @@ void init()
     r = ray_create(0, 0, 0, 0, 0, 0, 0, 0);
     r->origin->x = 0;
     r->origin->y = 0;
-    r->origin->z = -2;
+    r->origin->z = -1;
     r->origin->w = 0;
 
     rast = rasteriser_create();
