@@ -1,0 +1,8 @@
+enable_testing()
+find_package(Check REQUIRED)
+include_directories(${CHECK_INCLUDE_DIRS})
+set(LIBS ${LIBS} ${CHECK_LIBRARIES} geom)
+include_directories(. ../src)
+add_executable(test_rast test_vector4.c)
+target_link_libraries(test_rast ${LIBS})
+add_test(test_rast ${CMAKE_CURRENT_BINARY_DIR}/test_rast)
