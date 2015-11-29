@@ -104,13 +104,32 @@ void raytrace_scene(raytracer* raytracer, SDL_Surface* screen)
     vector4* pixelv = vector4_create(0, 0, 0, 0);
     for (y = 0; y < screen->h; y++)
     {
-        pixelv->y = y;
+        pixelv->y = y-240;
+        pixelv->y *= 0.005;
         for (x = 0; x < screen->w; x++)
         {
-            pixelv->x = x;
-            vector4_minus(direction, raytracer->camera, pixelv);
-
             // get the direction vector for this line
+            pixelv->x = x-320;
+            pixelv->x *= 0.005;
+            vector4_minus(direction, pixelv, raytracer->camera); //, pixelv);
+
+            if (x == 320 && y == 240)
+            {
+                printf("Fired a ray from <%f, %f, %f, %f> to <%f, %f, %f, %f> in direction <%f, %f, %f, %f>\n",
+                        raytracer->camera->x,
+                        raytracer->camera->y,
+                        raytracer->camera->z,
+                        raytracer->camera->w,
+                        pixelv->x,
+                        pixelv->y,
+                        pixelv->z,
+                        pixelv->w,
+                        direction->x,
+                        direction->y,
+                        direction->z,
+                        direction->w);
+            }
+            
             if (ray_intersects_tri(raytracer->camera, direction, front))
             {
                 pixels[(y * screen->w) + x] = color;
@@ -131,7 +150,7 @@ void init()
     t = vector4_create(0, 0, 0, 0);
  
     ray = (raytracer*)malloc(sizeof(raytracer));
-    ray->camera = vector4_create(0, 0.1, -4, 0);
+    ray->camera = vector4_create(0, 0, -2, 0);
     ray->focal_length = 1;
 
     rast = rasteriser_create();

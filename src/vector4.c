@@ -31,9 +31,8 @@ void vector4_norm(vector4* result, vector4* target)
 
 void vector4_cross(vector4* result, vector4* left, vector4* right)
 {
-    // http://mathinsight.org/cross_product_examples
     result->x = ((left->y * right->z) - (left->z * right->y));
-    result->y = ((left->x * right->x) - (left->z * right->x));
+    result->y = -((left->x * right->z) - (left->z * right->x));
     result->z = ((left->x * right->y) - (left->y * right->x));
     result->w = 0;
 }
