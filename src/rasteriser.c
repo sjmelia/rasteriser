@@ -1,56 +1,86 @@
 #include "rasteriser.h"
 #include "vector4.h"
+#include "triangle.h"
+#include "affine.h"
 #include <stdlib.h>
+#include <math.h>
+#include <SDL/SDL_gfxPrimitives.h>
 
 rasteriser* rasteriser_create()
 {
     rasteriser* rast = (rasteriser*)malloc(sizeof(rasteriser));
-    rast->modelMatrix = matrix4_create();
-    rast->projectionMatrix = matrix4_create();
+    rast->model_affine = affine_create();
+    rast->projection_matrix = matrix4_create();
     return rast;
 }
 
 void rasteriser_free(rasteriser* rast)
 {
-    matrix4_free(rast->modelMatrix);
-    matrix4_free(rast->projectionMatrix);
+    affine_free(rast->model_affine);
+    matrix4_free(rast->projection_matrix);
     free(rast);
 }
 
-void rasteriser_translate(rasteriser* rast, double x, double y, double z, double w)
+void frustum(matrix4* m, double left, double right, double bottom, double top, double znear, double zfar)
 {
-    // Get a translation matrix
-    matrix4* translate = matrix4_create();
-    matrix4_translate(translate, x, y, z);
-
-    // Apply the translation
-    matrix4_multiply(rast->modelMatrix, rast->modelMatrix, translate);
-
-    // Free and swap
-    matrix4_free(translate);
+    m->a1 = (2 * znear) / (right - left);
+    m->a3 = (right + left) / (right - left);
+    m->b2 = (2 * znear) / (top - bottom);
+    m->b3 = (top + bottom) / (top - bottom);
+    m->c3 = - ((zfar + znear) / (zfar - znear));
+    m->c4 = - ((2 * zfar * znear) / (zfar - znear));
+    m->d3 = -1;
 }
 
-void rasteriser_rotate(rasteriser* rast, double angle, double x, double y, double z, double w)
+void rasteriser_perspective(rasteriser* rast, double fov, double aspect, double nearplane, double farplane)
 {
-    // Get a translation matrix
-    matrix4* translate = matrix4_create();
-    // what about w?
-    matrix4_rotation(translate, angle, x, y, z);
-
-    // Apply the translation
-    matrix4_multiply(rast->modelMatrix, rast->modelMatrix, translate);
-
-    // Free and swap
-    matrix4_free(translate);
+    double xmin, xmax, ymin, ymax;
+    ymax = nearplane * (double)tan(fov * M_PI / 360);
+    ymin = -ymax;
+    xmin = ymin * aspect;
+    xmax = ymax * aspect;
+    frustum(rast->projection_matrix, xmin, xmax, ymin, ymax, nearplane, farplane);
 }
 
 void rasteriser_transform(rasteriser* rast, vector4* result, vector4* point)
 {
-    matrix4_multiply_v4(result, rast->modelMatrix, point);
-    matrix4_multiply_v4(result, rast->projectionMatrix, result);
+    affine_apply(rast->model_affine, result, point);
+    matrix4_multiply_v4(result, rast->projection_matrix, result);
     vector4_norm(result, result);
+    // no idea what this is about
     result->x = (result->x + 1) * (640 / 2);
     result->y = (result->y + 1) * (480 / 2);
+
 }
 
+void rasteriser_render_triangle(rasteriser* rast, SDL_Surface* screen, triangle* tri, int r, int g, int b)
+{
+    affine_rotate(rast->model_affine, 0.5, 0.0, 1.0, 0.0, 1.0); 
+    vector4* transformeda = vector4_create(1,1,1,1);
+    vector4* transformedb = vector4_create(1,1,1,1);
+    vector4* transformedc = vector4_create(1,1,1,1);
+
+    rasteriser_transform(rast, transformeda, tri->a);
+    rasteriser_transform(rast, transformedb, tri->b);
+    rasteriser_transform(rast, transformedc, tri->c);
+
+    lineRGBA(screen, transformeda->x, transformeda->y, transformedb->x, transformedb->y, r, g, b, 255);
+    lineRGBA(screen, transformedb->x, transformedb->y, transformedc->x, transformedc->y, r, g, b, 255);
+    lineRGBA(screen, transformedc->x, transformedc->y, transformeda->x, transformeda->y, r, g, b, 255);
+
+    vector4_free(transformeda);
+    vector4_free(transformedb);
+    vector4_free(transformedc);
+}
+
+void rasteriser_render(rasteriser* rast, SDL_Surface* screen)
+{
+
+    //render_triangle(rast, screen, front, 255, 0, 0);
+    //render_triangle(screen, back, 0, 255, 0);
+    //render_triangle(screen, left, 0, 0, 255);
+    //render_triangle(screen, right, 255, 255, 0);
+    //render_triangle(screen, bota, 255, 0, 255);
+    //render_triangle(screen, botb, 0, 255, 255);
+}
 

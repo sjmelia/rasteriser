@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include "vector4.h"
 #include "matrix4.h"
-#include "projection.h" 
 #include "triangle.h"
 #include "rasteriser.h"
 #include "ray.h"
@@ -18,36 +17,6 @@ triangle* botb;
 rasteriser* rast;
 ray* r;
 
-void render_triangle(SDL_Surface* screen, triangle* tri, int r, int g, int b)
-{
-    vector4* transformeda = vector4_create(1,1,1,1);
-    vector4* transformedb = vector4_create(1,1,1,1);
-    vector4* transformedc = vector4_create(1,1,1,1);
-
-    rasteriser_transform(rast, transformeda, tri->a);
-    rasteriser_transform(rast, transformedb, tri->b);
-    rasteriser_transform(rast, transformedc, tri->c);
-
-    lineRGBA(screen, transformeda->x, transformeda->y, transformedb->x, transformedb->y, r, g, b, 255);
-    lineRGBA(screen, transformedb->x, transformedb->y, transformedc->x, transformedc->y, r, g, b, 255);
-    lineRGBA(screen, transformedc->x, transformedc->y, transformeda->x, transformeda->y, r, g, b, 255);
-
-    vector4_free(transformeda);
-    vector4_free(transformedb);
-    vector4_free(transformedc);
-}
-
-void render_scene(SDL_Surface* screen)
-{
-    //rasteriser_rotate(rast, 0.5, 0.0, 1.0, 0.0, 1.0); 
-
-    render_triangle(screen, front, 255, 0, 0);
-    //render_triangle(screen, back, 0, 255, 0);
-    //render_triangle(screen, left, 0, 0, 255);
-    //render_triangle(screen, right, 255, 255, 0);
-    //render_triangle(screen, bota, 255, 0, 255);
-    //render_triangle(screen, botb, 0, 255, 255);
-}
 
 void raytrace_scene(SDL_Surface* screen)
 {
@@ -103,8 +72,13 @@ void raytrace_scene(SDL_Surface* screen)
     vector4_free(pixelv);
 }
 
+affine* transform;
+
 void init()
 {
+    transform = affine_create();
+    affine_rotate(transform, 0.5, 0.0, 1.0, 0.0, 1.0); 
+
     r = ray_create(0, 0, 0, 0, 0, 0, 0, 0);
     r->origin->x = 0;
     r->origin->y = 0;
@@ -113,8 +87,7 @@ void init()
 
     rast = rasteriser_create();
     // camera is between 1.45 and 3 from the object?
-    perspective(rast->projectionMatrix, 45.0, (640 / 480), 0.1, 100);
-    matrix4_identity(rast->modelMatrix);
+    rasteriser_perspective(rast, 45.0, (640 / 480), 0.1, 100);
     //rasteriser_translate(rast, 0.0, 0.0, 3.0, 1.0);    
     
     back = triangle_create(
@@ -145,6 +118,7 @@ void init()
 }
 
 
+
 void render(SDL_Surface* screen)
 {
     SDL_LockSurface(screen);
@@ -159,7 +133,14 @@ void render(SDL_Surface* screen)
         }
     }
     raytrace_scene(screen);
-    render_scene(screen);
+    //rasteriser_render(rast, screen);
+    rasteriser_render_triangle(rast, screen, front, 255, 0, 0);
+    
+
+    affine_apply(transform, front->a, front->a);
+    affine_apply(transform, front->b, front->b);
+    affine_apply(transform, front->c, front->c);
+
     SDL_UnlockSurface(screen);
     SDL_UpdateRect(screen, 0, 0, screen->w, screen->h);
 }
