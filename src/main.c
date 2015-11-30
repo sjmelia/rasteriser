@@ -17,12 +17,14 @@ triangle* botb;
 rasteriser* rast;
 ray* r;
 
+unsigned int black;
+unsigned int green;
+unsigned int red;
 
 void raytrace_scene(SDL_Surface* screen)
 {
     // surface is already locked
     unsigned int* pixels = (unsigned int*)screen->pixels;
-    unsigned int color = SDL_MapRGB(screen->format, 100,125,150);
     // for each pixel, project a line from the camera
     // to the defined plane
     int x,y;
@@ -45,7 +47,7 @@ void raytrace_scene(SDL_Surface* screen)
             pixelv->x = (((2.0 * dx) - 640.0) / 640.0) * tan(fovx);
             vector4_minus(r->direction, pixelv, r->origin); //, pixelv);
 
-            if (x == 320 && y == 240)
+            /*if (x == 320 && y == 240)
             {
                 printf("Fired a ray from <%f, %f, %f, %f> to <%f, %f, %f, %f> in direction <%f, %f, %f, %f>\n",
                         r->origin->x,
@@ -60,12 +62,26 @@ void raytrace_scene(SDL_Surface* screen)
                         r->direction->y,
                         r->direction->z,
                         r->direction->w);
+            }*/
+            double t2; 
+            if (ray_intersects_tri(r, front, &t2))
+            {
+                //int col2 = t2 * 255;
+                //unsigned int color2 = SDL_MapRGB(screen->format, 0,col2,0);
+                int cy = 479 - y;
+                //printf("y: %d cy: %d t2:%f\n", y, cy, t2);
+                pixels[(cy * screen->w) + x] = red;
             }
             
-            if (ray_intersects_tri(r, front))
+            if (ray_intersects_tri(r, left, &t2))
             {
-                pixels[(y * screen->w) + x] = color;
+                int col2 = t2 * 255;
+                unsigned int color2 = SDL_MapRGB(screen->format, col2,0,0);
+                int cy = 479 - y;
+                //printf("y: %d cy: %d t2:%f\n", y, cy, t2);
+                pixels[(cy * screen->w) + x] = green;
             }
+
          }
     }
 
@@ -74,15 +90,19 @@ void raytrace_scene(SDL_Surface* screen)
 
 affine* transform;
 
-void init()
+void init(SDL_Surface* screen)
 {
+    black = SDL_MapRGB(screen->format, 0,0,0);
+    green = SDL_MapRGB(screen->format, 0,255,0);
+    red = SDL_MapRGB(screen->format, 255,0,0);
+
     transform = affine_create();
     affine_rotate(transform, 0.5, 0.0, 1.0, 0.0, 1.0); 
 
     r = ray_create(0, 0, 0, 0, 0, 0, 0, 0);
     r->origin->x = 0;
     r->origin->y = 0;
-    r->origin->z = -1;
+    r->origin->z = -5;
     r->origin->w = 0;
 
     rast = rasteriser_create();
@@ -124,22 +144,27 @@ void render(SDL_Surface* screen)
     SDL_LockSurface(screen);
     unsigned int* pixels = (unsigned int*)screen->pixels;
     int x,y;
-    unsigned int color = SDL_MapRGB(screen->format, 0,0,0);
     for (y = 0; y < screen->h; y++)
     {
         for (x = 0; x < screen->w; x++)
         {
-            pixels[(y * screen->w) + x] = color;
+            pixels[(y * screen->w) + x] = black;
         }
     }
     raytrace_scene(screen);
     //rasteriser_render(rast, screen);
     rasteriser_render_triangle(rast, screen, front, 255, 0, 0);
+    rasteriser_render_triangle(rast, screen, left, 0, 255, 0);
     
 
     affine_apply(transform, front->a, front->a);
     affine_apply(transform, front->b, front->b);
     affine_apply(transform, front->c, front->c);
+
+    affine_apply(transform, left->a, left->a);
+    affine_apply(transform, left->b, left->b);
+    affine_apply(transform, left->c, left->c);
+
 
     SDL_UnlockSurface(screen);
     SDL_UpdateRect(screen, 0, 0, screen->w, screen->h);
@@ -150,7 +175,7 @@ int main()
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
     SDL_Surface* screen = SDL_SetVideoMode(640, 480, 32, SDL_SWSURFACE);
-    init();
+    init(screen);
     SDL_Event event;
     int numFrames = 0;
     //int startTime = SDL_GetTicks();

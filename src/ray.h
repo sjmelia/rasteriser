@@ -14,7 +14,7 @@ typedef struct ray
 
 ray* ray_create(double ox, double oy, double oz, double ow, double dx, double dy, double dz, double dw);
 void ray_free(ray* r);
-int ray_intersects_tri(ray* r, triangle* tri);
+int ray_intersects_tri(ray* r, triangle* tri, double* out);
 
 #endif
 

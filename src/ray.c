@@ -47,7 +47,7 @@ void ray_free(ray* r)
     free(r);
 }
 
-int ray_intersects_tri(ray* r, triangle* tri)
+int ray_intersects_tri(ray* r, triangle* tri, double* out)
 {
     //return 1;
     double det, inv_det, u, v;
@@ -70,7 +70,7 @@ int ray_intersects_tri(ray* r, triangle* tri)
 
     if (t2 > EPSILON)
     {
-        // *out = t2;
+        *out = t2;
         return 1;
     }
 
