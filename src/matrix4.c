@@ -106,7 +106,7 @@ void matrix4_translate(matrix4* matrix, double x, double y, double z)
     m->a4 = x;
     m->b4 = y;
     m->c4 = z;
-    //m->d4 = w; ?
+    m->d4 = 1;
     matrix4_multiply(matrix, matrix, m);
     matrix4_free(m);
 }

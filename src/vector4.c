@@ -17,7 +17,7 @@ double vector4_length(vector4* target)
     double length = (target->x * target->x)
                     + (target->y * target->y)
                     + (target->z * target->z);
-                    //+ (target->w * target->w);
+                    + (target->w * target->w);
     return sqrt(length);
 }
 
@@ -27,6 +27,7 @@ void vector4_norm(vector4* result, vector4* target)
     result->x = target->x / length;
     result->y = target->y / length;
     result->z = target->z / length;
+    result->w = target->w / length;
 }
 
 void vector4_cross(vector4* result, vector4* left, vector4* right)
@@ -34,7 +35,7 @@ void vector4_cross(vector4* result, vector4* left, vector4* right)
     result->x = ((left->y * right->z) - (left->z * right->y));
     result->y = -((left->x * right->z) - (left->z * right->x));
     result->z = ((left->x * right->y) - (left->y * right->x));
-    result->w = 0;
+    result->w = 1;
 }
 
 double vector4_dot(vector4* left, vector4* right)

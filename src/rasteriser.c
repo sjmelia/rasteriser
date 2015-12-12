@@ -30,6 +30,8 @@ void frustum(matrix4* m, double left, double right, double bottom, double top, d
     m->c3 = - ((zfar + znear) / (zfar - znear));
     m->c4 = - ((2 * zfar * znear) / (zfar - znear));
     m->d3 = -1;
+    // undo identity
+    m->d4 = 0;
 }
 
 void rasteriser_perspective(rasteriser* rast, double fov, double aspect, double nearplane, double farplane)
@@ -46,16 +48,29 @@ void rasteriser_transform(rasteriser* rast, vector4* result, vector4* point)
 {
     affine_apply(rast->model_affine, result, point);
     matrix4_multiply_v4(result, rast->projection_matrix, result);
-    vector4_norm(result, result);
+//    vector4_norm(result, result);
+
+    // http://stackoverflow.com/questions/3792481/how-to-get-screen-coordinates-from-a-3d-point-opengl
+    result->x = result->x / result->w;
+    result->y = result->y / result->w;
+    result->z = result->z / result->w;
+
+    //result->x = (320 * (result->x + 1)) / 2;
+    //result->y = (218.141434 * (result->y + 1)) / 2;
+    //result->z = (result->z + 1) / 2;*/
+    result->x = (result->x + 1) * (320 / 2);
+    result->y = (result->y + 1) * (218.141434 / 2);
     // no idea what this is about
-    result->x = (result->x + 1) * (640 / 2);
-    result->y = (result->y + 1) * (480 / 2);
+//    result->x = (result->x + 1) * (640 / 2);
+//    result->y = (result->y + 1) * (480 / 2);
+    //result->x = result->x * 640;
+    //result->y = result->y * 480;
+    //result->y = 480 - result->y;
 
 }
 
 void rasteriser_render_triangle(rasteriser* rast, SDL_Surface* screen, triangle* tri, int r, int g, int b)
 {
-    affine_rotate(rast->model_affine, 0.5, 0.0, 1.0, 0.0, 1.0); 
     vector4* transformeda = vector4_create(1,1,1,1);
     vector4* transformedb = vector4_create(1,1,1,1);
     vector4* transformedc = vector4_create(1,1,1,1);

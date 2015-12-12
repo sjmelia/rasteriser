@@ -107,7 +107,9 @@ void init(SDL_Surface* screen)
 
     rast = rasteriser_create();
     // camera is between 1.45 and 3 from the object?
-    rasteriser_perspective(rast, 45.0, (640 / 480), 0.1, 100);
+    float width = 640.0;
+    float height = 480.0;
+    rasteriser_perspective(rast, 60.0, (width / height), 1.0, 1024.0);
     //rasteriser_translate(rast, 0.0, 0.0, 3.0, 1.0);    
     
     back = triangle_create(
@@ -115,9 +117,9 @@ void init(SDL_Surface* screen)
             -1.0, 1.0, 1.0,
             1.0, 1.0, 1.0);
     front = triangle_create(
-            0.0, -1.0, 0.0,
-            -1.0, 1.0, -1.0,
-            1.0, 1.0, -1.0);
+            -1.0, -1.0, -4.0,
+            1.0, -1.0, -4.0,
+            1.0, 1.0, -4.0);
     left = triangle_create(
             0.0, -1.0, 0.0,
             -1.0, 1.0, -1.0,
@@ -151,20 +153,20 @@ void render(SDL_Surface* screen)
             pixels[(y * screen->w) + x] = black;
         }
     }
-    raytrace_scene(screen);
+//    raytrace_scene(screen);
     //rasteriser_render(rast, screen);
     rasteriser_render_triangle(rast, screen, front, 255, 0, 0);
-    rasteriser_render_triangle(rast, screen, left, 0, 255, 0);
+  //  rasteriser_render_triangle(rast, screen, left, 0, 255, 0);
     
 
-    affine_apply(transform, front->a, front->a);
+    /*affine_apply(transform, front->a, front->a);
     affine_apply(transform, front->b, front->b);
     affine_apply(transform, front->c, front->c);
 
     affine_apply(transform, left->a, left->a);
     affine_apply(transform, left->b, left->b);
     affine_apply(transform, left->c, left->c);
-
+*/
 
     SDL_UnlockSurface(screen);
     SDL_UpdateRect(screen, 0, 0, screen->w, screen->h);
