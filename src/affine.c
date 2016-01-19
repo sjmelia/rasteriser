@@ -43,4 +43,3 @@ void affine_apply(affine* transform, vector4* result, vector4* point)
     matrix4_multiply_v4(result, transform->transform_matrix, point);
 }
 
-

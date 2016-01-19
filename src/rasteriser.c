@@ -6,11 +6,13 @@
 #include <math.h>
 #include <SDL/SDL_gfxPrimitives.h>
 
-rasteriser* rasteriser_create()
+rasteriser* rasteriser_create(int viewport_width, int viewport_height)
 {
     rasteriser* rast = (rasteriser*)malloc(sizeof(rasteriser));
     rast->model_affine = affine_create();
     rast->projection_matrix = matrix4_create();
+    rast->viewport_width = viewport_width;
+    rast->viewport_height = viewport_height;
     return rast;
 }
 
@@ -48,18 +50,17 @@ void rasteriser_transform(rasteriser* rast, vector4* result, vector4* point)
 {
     affine_apply(rast->model_affine, result, point);
     matrix4_multiply_v4(result, rast->projection_matrix, result);
-//    vector4_norm(result, result);
 
     // http://stackoverflow.com/questions/3792481/how-to-get-screen-coordinates-from-a-3d-point-opengl
     result->x = result->x / result->w;
     result->y = result->y / result->w;
     result->z = result->z / result->w;
 
-    result->x = (640 * (result->x + 1)) / 2;
-    result->y = (480 * (result->y + 1)) / 2;
+    result->x = (rast->viewport_width * (result->x + 1)) / 2;
+    result->y = (rast->viewport_height * (result->y + 1)) / 2;
 
     // flip y coord
-    result->y = 480 - result->y;
+    result->y = rast->viewport_height - result->y;
 
     // @todo sort out result->z using the depth range
     // ftp://ftp.sgi.com/opengl/contrib/blythe/advanced99/notes/node28.html

@@ -11,9 +11,11 @@ typedef struct rasteriser
 {
     affine* model_affine;
     matrix4* projection_matrix;
+    int viewport_width;
+    int viewport_height;
 } rasteriser;
 
-rasteriser* rasteriser_create();
+rasteriser* rasteriser_create(int viewport_width, int viewport_height);
 void rasteriser_free(rasteriser* rast);
 void rasteriser_render(rasteriser* rast, SDL_Surface* screen);
 void rasteriser_render_triangle(rasteriser* rast, SDL_Surface* screen, triangle* tri, int r, int g, int b);

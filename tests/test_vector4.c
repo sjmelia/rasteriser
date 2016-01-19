@@ -76,7 +76,7 @@ END_TEST
 // http://stackoverflow.com/questions/17565664/gluproject-and-2d-display 
 START_TEST(test_rast_transform)
 {
-    rasteriser* rast = rasteriser_create();
+    rasteriser* rast = rasteriser_create(640, 480);
     float width = 640;
     float height = 480;
     float ratio = width / height;
@@ -105,7 +105,7 @@ END_TEST
 
 START_TEST(test_affine_projection)
 {
-    rasteriser* rast = rasteriser_create();
+    rasteriser* rast = rasteriser_create(640, 480);
     float width = 640;
     float height = 480;
     float ratio = width / height;

@@ -21,6 +21,8 @@ unsigned int black;
 unsigned int green;
 unsigned int red;
 
+affine* transform;
+
 void raytrace_scene(SDL_Surface* screen)
 {
     // surface is already locked
@@ -81,14 +83,11 @@ void raytrace_scene(SDL_Surface* screen)
                 //printf("y: %d cy: %d t2:%f\n", y, cy, t2);
                 pixels[(cy * screen->w) + x] = green;
             }
-
          }
     }
 
     vector4_free(pixelv);
 }
-
-affine* transform;
 
 void init(SDL_Surface* screen)
 {
@@ -97,7 +96,7 @@ void init(SDL_Surface* screen)
     red = SDL_MapRGB(screen->format, 255,0,0);
 
     transform = affine_create();
-    affine_rotate(transform, 0.5, 0.0, 1.0, 0.0, 1.0); 
+    affine_rotate(transform, 0.1, 0.0, 1.0, 0.0, 1.0); 
 
     r = ray_create(0, 0, 0, 0, 0, 0, 0, 0);
     r->origin->x = 0;
@@ -105,7 +104,7 @@ void init(SDL_Surface* screen)
     r->origin->z = -5;
     r->origin->w = 0;
 
-    rast = rasteriser_create();
+    rast = rasteriser_create(640, 480);
     float width = 640.0;
     float height = 480.0;
     rasteriser_perspective(rast, 60.0, (width / height), 1.0, 1024.0);
@@ -137,8 +136,6 @@ void init(SDL_Surface* screen)
             1.0, 1.0, 1.0);
 }
 
-
-
 void render(SDL_Surface* screen)
 {
     SDL_LockSurface(screen);
@@ -151,21 +148,14 @@ void render(SDL_Surface* screen)
             pixels[(y * screen->w) + x] = black;
         }
     }
-//    raytrace_scene(screen);
-    //rasteriser_render(rast, screen);
-    rasteriser_render_triangle(rast, screen, front, 255, 0, 0);
-  //  rasteriser_render_triangle(rast, screen, left, 0, 255, 0);
     
+    // raytrace_scene(screen);
+    rasteriser_render_triangle(rast, screen, front, 255, 0, 0);
 
-    /*affine_apply(transform, front->a, front->a);
+    affine_apply(transform, front->a, front->a);
     affine_apply(transform, front->b, front->b);
     affine_apply(transform, front->c, front->c);
-
-    affine_apply(transform, left->a, left->a);
-    affine_apply(transform, left->b, left->b);
-    affine_apply(transform, left->c, left->c);
-*/
-
+   
     SDL_UnlockSurface(screen);
     SDL_UpdateRect(screen, 0, 0, screen->w, screen->h);
 }
