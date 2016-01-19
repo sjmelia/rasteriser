@@ -55,18 +55,14 @@ void rasteriser_transform(rasteriser* rast, vector4* result, vector4* point)
     result->y = result->y / result->w;
     result->z = result->z / result->w;
 
-    //result->x = (320 * (result->x + 1)) / 2;
-    //result->y = (218.141434 * (result->y + 1)) / 2;
-    //result->z = (result->z + 1) / 2;*/
-    result->x = (result->x + 1) * (320 / 2);
-    result->y = (result->y + 1) * (218.141434 / 2);
-    // no idea what this is about
-//    result->x = (result->x + 1) * (640 / 2);
-//    result->y = (result->y + 1) * (480 / 2);
-    //result->x = result->x * 640;
-    //result->y = result->y * 480;
-    //result->y = 480 - result->y;
+    result->x = (640 * (result->x + 1)) / 2;
+    result->y = (480 * (result->y + 1)) / 2;
 
+    // flip y coord
+    result->y = 480 - result->y;
+
+    // @todo sort out result->z using the depth range
+    // ftp://ftp.sgi.com/opengl/contrib/blythe/advanced99/notes/node28.html
 }
 
 void rasteriser_render_triangle(rasteriser* rast, SDL_Surface* screen, triangle* tri, int r, int g, int b)

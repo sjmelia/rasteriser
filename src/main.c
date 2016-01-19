@@ -106,11 +106,9 @@ void init(SDL_Surface* screen)
     r->origin->w = 0;
 
     rast = rasteriser_create();
-    // camera is between 1.45 and 3 from the object?
     float width = 640.0;
     float height = 480.0;
     rasteriser_perspective(rast, 60.0, (width / height), 1.0, 1024.0);
-    //rasteriser_translate(rast, 0.0, 0.0, 3.0, 1.0);    
     
     back = triangle_create(
             0.0, -1.0, 0.0,
