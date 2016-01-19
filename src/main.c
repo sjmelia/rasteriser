@@ -31,7 +31,7 @@ void raytrace_scene(SDL_Surface* screen)
     // to the defined plane
     int x,y;
     vector4* pixelv = vector4_create(0, 0, 0, 0);
-    double fovx = 45.0;
+    double fovx = 60.0;
     double fovy = (480.0/640.0) * fovx;
     for (y = 0.0; y < screen->h; y++)
     {
@@ -75,14 +75,14 @@ void raytrace_scene(SDL_Surface* screen)
                 pixels[(cy * screen->w) + x] = red;
             }
             
-            if (ray_intersects_tri(r, left, &t2))
+            /*if (ray_intersects_tri(r, left, &t2))
             {
                 int col2 = t2 * 255;
                 unsigned int color2 = SDL_MapRGB(screen->format, col2,0,0);
                 int cy = 479 - y;
                 //printf("y: %d cy: %d t2:%f\n", y, cy, t2);
                 pixels[(cy * screen->w) + x] = green;
-            }
+            }*/
          }
     }
 
@@ -95,13 +95,12 @@ void init(SDL_Surface* screen)
     green = SDL_MapRGB(screen->format, 0,255,0);
     red = SDL_MapRGB(screen->format, 255,0,0);
 
-    transform = affine_create();
-    affine_rotate(transform, 0.1, 0.0, 1.0, 0.0, 1.0); 
+    //transform = affine_create();
 
     r = ray_create(0, 0, 0, 0, 0, 0, 0, 0);
     r->origin->x = 0;
     r->origin->y = 0;
-    r->origin->z = -5;
+    r->origin->z = -8;
     r->origin->w = 0;
 
     rast = rasteriser_create(640, 480);
@@ -109,22 +108,23 @@ void init(SDL_Surface* screen)
     float height = 480.0;
     rasteriser_perspective(rast, 60.0, (width / height), 1.0, 1024.0);
     
+    //affine_rotate(rast->model_affine, 25, 0.0, 1.0, 0.0, 1.0); 
     back = triangle_create(
-            0.0, -1.0, 0.0,
-            -1.0, 1.0, 1.0,
-            1.0, 1.0, 1.0);
+            -1.0, -1.0, -5.0,
+            1.0, -1.0, -5.0,
+            0.0, 1.0, -4.0);
     front = triangle_create(
             -1.0, -1.0, -4.0,
             1.0, -1.0, -4.0,
-            1.0, 1.0, -4.0);
+            0.0, 1.0, -4.0);
     left = triangle_create(
-            0.0, -1.0, 0.0,
-            -1.0, 1.0, -1.0,
-            -1.0, 1.0, 1.0);
+            -1.0, -1.0, -5.0,
+            -1.0, -1.0, -4.0,
+            0.0, 1.0, -4.0);
     right = triangle_create(
-            0.0, -1.0, 0.0,
-            1.0, 1.0, -1.0,
-            1.0, 1.0, 1.0);
+            1.0, -1.0, -5.0,
+            1.0, -1.0, -4.0,
+            0.0, 1.0, -4.0);
 
     bota = triangle_create(
             -1.0, 1.0, 1.0,
@@ -149,13 +149,16 @@ void render(SDL_Surface* screen)
         }
     }
     
-    // raytrace_scene(screen);
+    //raytrace_scene(screen);
     rasteriser_render_triangle(rast, screen, front, 255, 0, 0);
-
+    rasteriser_render_triangle(rast, screen, back, 0, 255, 0);
+    rasteriser_render_triangle(rast, screen, left, 0, 0, 255);
+    rasteriser_render_triangle(rast, screen, right, 255, 255, 255);
+/*
     affine_apply(transform, front->a, front->a);
     affine_apply(transform, front->b, front->b);
     affine_apply(transform, front->c, front->c);
-   
+  */ 
     SDL_UnlockSurface(screen);
     SDL_UpdateRect(screen, 0, 0, screen->w, screen->h);
 }
