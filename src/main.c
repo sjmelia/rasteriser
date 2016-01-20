@@ -21,7 +21,7 @@ unsigned int black;
 unsigned int green;
 unsigned int red;
 
-affine* transform;
+//affine* transform;
 
 void raytrace_scene(SDL_Surface* screen)
 {
@@ -110,21 +110,21 @@ void init(SDL_Surface* screen)
     
     //affine_rotate(rast->model_affine, 25, 0.0, 1.0, 0.0, 1.0); 
     back = triangle_create(
-            -1.0, -1.0, -5.0,
+            0.0, 1.0, -4.0,
             1.0, -1.0, -5.0,
-            0.0, 1.0, -4.0);
+            -1.0, -1.0, -5.0);
     front = triangle_create(
-            -1.0, -1.0, -4.0,
-            1.0, -1.0, -4.0,
+            -1.0, -1.0, -3.0,
+            1.0, -1.0, -3.0,
             0.0, 1.0, -4.0);
     left = triangle_create(
             -1.0, -1.0, -5.0,
-            -1.0, -1.0, -4.0,
+            -1.0, -1.0, -3.0,
             0.0, 1.0, -4.0);
     right = triangle_create(
-            1.0, -1.0, -5.0,
-            1.0, -1.0, -4.0,
-            0.0, 1.0, -4.0);
+            0.0, 1.0, -4.0,
+            1.0, -1.0, -3.0,
+            1.0, -1.0, -5.0);
 
     bota = triangle_create(
             -1.0, 1.0, 1.0,
@@ -148,7 +148,17 @@ void render(SDL_Surface* screen)
             pixels[(y * screen->w) + x] = black;
         }
     }
-    
+
+    static float angle = 0.0f; 
+    affine_identity(rast->model_affine);
+    affine_translate(rast->model_affine, 0.0, 0.0, -4.0, 0.0); 
+    affine_rotate(rast->model_affine, angle, 0.0, 1.0, 0.0, 0.0); 
+    affine_translate(rast->model_affine, 0.0, 0.0, 4.0, 0.0);
+    if (++angle > 360.0f)
+    {
+        angle = 0.0f;
+    }
+
     //raytrace_scene(screen);
     rasteriser_render_triangle(rast, screen, front, 255, 0, 0);
     rasteriser_render_triangle(rast, screen, back, 0, 255, 0);

@@ -92,10 +92,24 @@ static void draw_screen( void )
      * EXERCISE:
      * Verify my windings are correct here ;).
      */
-    static GLfloat v0[] = { -1.0f, -1.0f,  -4.0f };
-    static GLfloat v1[] = {  1.0f, -1.0f,  -4.0f };
-    static GLfloat v2[] = {  1.0f,  1.0f,  -4.0f };
- 
+    static GLfloat v2[] = { -1.0f, -1.0f,  -5.0f };
+    static GLfloat v1[] = {  1.0f, -1.0f,  -5.0f };
+    static GLfloat v0[] = {  0.0f,  1.0f,  -4.0f };
+
+    static GLfloat v3[] = { -1.0f, -1.0f,  -3.0f };
+    static GLfloat v4[] = {  1.0f, -1.0f,  -3.0f };
+    static GLfloat v5[] = {  0.0f,  1.0f,  -4.0f };
+
+    static GLfloat v6[] = { -1.0f, -1.0f,  -5.0f };
+    static GLfloat v7[] = { -1.0f, -1.0f,  -3.0f };
+    static GLfloat v8[] = {  0.0f,  1.0f,  -4.0f };
+
+    static GLfloat v11[] = { 1.0f, -1.0f,  -5.0f };
+    static GLfloat v10[] = {  1.0f, -1.0f,  -3.0f };
+    static GLfloat v9[] = {  0.0f,  1.0f,  -4.0f };
+
+
+
     static GLubyte red[]    = { 255,   0,   0, 255 };
     static GLubyte green[]  = {   0, 255,   0, 255 };
     static GLubyte blue[]   = {   0,   0, 255, 255 };
@@ -141,11 +155,10 @@ static void draw_screen( void )
             viewport[0], viewport[1], viewport[2], viewport[3], 
             winX, winY, winZ);
 
-    /* Move down the z-axis. */
-//    glTranslatef( 0.0, 0.0, -5.0 );
-
     /* Rotate. */
+    glTranslatef(0.0, 0.0, -4.0);
     glRotatef(angle, 0.0, 1.0, 0.0 );
+    glTranslatef(0.0, 0.0, 4.0);
 
     if( should_rotate ) {
 
@@ -156,23 +169,36 @@ static void draw_screen( void )
     }
     
     glPointSize( 6.0 );
-    /* Send our triangle data to the pipeline. */
+    /* Saend our triangle data to the pipeline. */
     glBegin( GL_TRIANGLES );
     //glBegin(GL_POINTS);
 
     glColor4ubv( red );
     glVertex3fv( v0 );
-    glColor4ubv( green );
     glVertex3fv( v1 );
-    glColor4ubv( blue );
     glVertex3fv( v2 );
+
+    glColor4ubv( green );
+    glVertex3fv( v3 );
+    glVertex3fv( v4 );
+    glVertex3fv( v5 );
+
+    glColor4ubv( blue );
+    glVertex3fv( v6 );
+    glVertex3fv( v7 );
+    glVertex3fv( v8 );
+
+    glColor4ubv( white );
+    glVertex3fv( v9 );
+    glVertex3fv( v10 );
+    glVertex3fv( v11 );
 
     glEnd( );
 
     /*
      * EXERCISE:
      * Draw text telling the user that 'Spc'
-     * pauses the rotation and 'Esc' quits.
+     * pausses the rotation and 'Esc' quits.
      * Do it using vetors and textured quads.
      */
 

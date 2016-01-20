@@ -14,6 +14,7 @@ typedef struct affine
 
 affine* affine_create();
 void affine_free(affine* transform);
+void affine_identity(affine* affine);
 void affine_translate(affine* transform, double x, double y, double z, double w);
 void affine_rotate(affine* transform, double angle, double x, double y, double z, double w);
 void affine_apply(affine* transform, vector4* result, vector4* point);

@@ -5,10 +5,15 @@ affine* affine_create()
 {
     affine* transform = (affine*)malloc(sizeof(affine));
     transform->transform_matrix = matrix4_create();
-    matrix4_identity(transform->transform_matrix);
     transform->translate_matrix = matrix4_create();
-    matrix4_identity(transform->translate_matrix);
+    affine_identity(transform);
     return transform;
+}
+
+void affine_identity(affine* affine)
+{
+    matrix4_identity(affine->transform_matrix);
+    matrix4_identity(affine->translate_matrix);
 }
 
 void affine_free(affine* transform)
