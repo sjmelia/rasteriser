@@ -1,4 +1,4 @@
-ld Status](https://travis-ci.org/sjmelia/rasteriser.svg?branch=master)](https://travis-ci.org/sjmelia/rasteriser)
+[![Build Status](https://travis-ci.org/sjmelia/rasteriser.svg?branch=master)](https://travis-ci.org/sjmelia/rasteriser)
 A Simple Rasteriser
 ===================
 
